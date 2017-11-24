@@ -1,0 +1,164 @@
+<html>
+    <head>
+        <title>Testing</title>
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous">
+	</script>
+        <style>
+            .table-wrapper {
+                display: inline-block;
+                height: 100px;
+                margin-left: 10px;
+                margin-right: 10px;
+                margin-top: 50px;
+                outline: 1px solid #aaa;
+                overflow-y: auto;
+                padding-left: 2px;
+                padding-top: 2px;
+                width: 300px;
+            }
+            table {
+                display: inline-block;
+                height: 75px;
+                width: 95%;
+            }
+            table tr,td,tbody {
+                /* extend length of td the entire length of table */
+                display: inline-block;
+                width: 100%;
+            }
+	    .move-button {
+                margin-bottom: 1em;
+            }
+            .selected-row {
+                background-color: orange;
+            }
+        </style>
+    </head>
+    <body>
+     <div>
+         <label>Enter comma-separated list of all values:</label>
+         <input id="input-info-all" type="text" />
+         <br />
+         <label>Enter comma-separated list of selected values:</label>
+         <input id="input-info-selected" type="text" />
+         <br />
+         <button type="button" id="set-info">Set</button>
+     </div>
+     <div>
+      <div class="table-wrapper">
+        <table id="available">
+            <tr>
+                <td>Field 1</td>
+            </tr> 
+            <tr>
+                <td>Field 11</td>
+            </tr> 
+        </table>
+      </div>
+      <div style="display: inline-block; margin-left: 10px; position: relative; top: -25px; width: 50px;">
+            <div>
+                <button id="move-right" type="button" class="move-button">&gt;</button>
+            </div>
+            <div>
+                <button id="move-left" type="button" class="move-button">&lt;</button>
+            </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="selected">
+            <tr>
+                <td>Field 101</td>
+            </tr>
+        </table>
+      </div>
+     </div>
+
+     <div>
+         <button id="get-values" type="button">Get Values</button>
+     </div>
+
+      <script>
+            $(document).ready(function() {
+                console.log("Starting ...");
+
+                $("button#get-values").on("click", function(e) {
+                    var selectedVals = [];
+                    var selectedFields = $("table#selected tr td");
+                    console.log("Selected fields:", selectedFields);
+                    for(var i=0; i < selectedFields.length; i++) {
+                        selectedVals.push($(selectedFields[i]).html());
+                    }
+                    console.log("Selected values:", selectedVals);
+                    alert("Selected values:" + selectedVals.join(","));
+                });
+
+                $("button#set-info").on("click", function(e) {
+                    console.log("Setting info");
+                    var inputInfoAll = $("input#input-info-all").val();
+                    var infoAll = inputInfoAll.split(",")
+                    console.log("Info as array all:", infoAll);
+                    var inputInfoSelected = $("input#input-info-selected").val();
+                    var infoSelected = inputInfoSelected.split(",")
+                    console.log("Info as array selected:", infoSelected);
+                    $("table#selected tr").remove();
+                    $("table#available tr").remove();
+
+                    // set left side
+                    var numRowsAll = infoAll.length;
+                    for(var i=0; i < numRowsAll; i++) {
+                        if (infoSelected.indexOf(infoAll[i]) != -1) {
+                            continue;
+                        }
+                        var rowToAdd = "<tr><td>" + infoAll[i] + "</td></tr>";
+                        $("table#available tbody").append(rowToAdd);
+                    }
+
+
+                    // set right side
+                    var numRowsSelected = infoSelected.length;
+                    for(var i=0; i < numRowsSelected; i++) {
+                        if (infoAll.indexOf(infoSelected[i]) === -1) {
+                            alert("Selected value not found in list of all available selections"); 
+                            return;
+                        }
+                        var rowToAdd = "<tr><td>" + infoSelected[i] + "</td></tr>";
+                        $("table#selected tbody").append(rowToAdd);
+                    }
+                });
+                $("button#move-right").on("click", function(e) {
+                    console.log("Moving right");
+                    var selectedRow = $(".selected-row");
+                    console.log("selectedRow:", selectedRow);
+                    selectedRow.remove();
+                    $("table#selected").append(selectedRow);
+                });
+
+                $("button#move-left").on("click", function(e) {
+                    console.log("Moving left");
+                    var selectedRow = $(".selected-row");
+                    console.log("selectedRow:", selectedRow);
+                    selectedRow.remove();
+                    $("table#available").append(selectedRow);
+                });
+
+		$("table").on("click", function(e) {
+                    var elTarget = e.target;
+                    var tagName = elTarget.tagName;
+                    var rowEl = null;
+                    if(tagName == 'TR') {
+                        rowEl = e.target; 
+                    } else if(tagName == 'TD') {
+                        rowEl = $(e.target).parent();
+                    }
+                    console.warn("rowEl:", rowEl);
+                    if (rowEl) {
+                        $('table tr').removeClass('selected-row');
+                        rowEl.addClass('selected-row'); 
+                    }
+		});
+            });
+      </script>
+    </body>
+</html>
+
+
